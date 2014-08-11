@@ -1,4 +1,9 @@
 function spotIDs = readSpotIDs(filename)
+% Use msconvert to convert the raw file into text format. The text format contains the
+% spot coordinates which can be parsed out, while the mzXML doesn't.
+% filename: path to raw file
+% spotIDs: [number of scans x 4] matrix
+
 system(['msconvert ' filename ' --text --filter "threshold count 1 most-intense']);
 %%
 [~,fname]=fileparts(filename);
@@ -19,7 +24,7 @@ while 1
     scans=[scans,str2num(index{1}{1})];
     line=fgetl(fid);
     if isempty(strfind(line,'spotID:'))
-        error('asd')
+        error('Something went wrong')
     end
     spotID=regexp(line,'([-]?\d{1,2})x([-]?\d{1,2}),(\d+)x(\d+)','tokens');
     spotID=spotID{1};
@@ -30,7 +35,3 @@ spotIDs=cat(1,spotIDs{:});
 %mins=min(spotIDs);
 %spotIDs(:,1:2)=bsxfun(@minus,spotIDs(:,1:2),mins(1,2)-1);
 end
-%%
-%msStruct=mzxmlread('1_MS.mzXML');
-%[peaks,time] = mzxml2peaks(msStruct);
-%[CMZ, AlignedPeaks] = mspalign(peaks);

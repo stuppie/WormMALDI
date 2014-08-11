@@ -71,9 +71,6 @@ perimPixels=bwdist(perim);
 perimPixels = perimPixels<=1;
 
 S = extendSkeleton(S, perimPixels);
-S = flipud(S);
-S = extendSkeleton(S, perimPixels);
-S = flipud(S);
 
 if showPlot, figure,imshow(perim), hold, plot(S(:,2),S(:,1),'x'), end
 
