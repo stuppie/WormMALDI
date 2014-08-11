@@ -5,7 +5,8 @@ function [out, worm]=segmentWorms(in,showPlot)
 
 % outputs:
 % out     The linear indices for the 3 segments
-% worm    RGB image of the 3 segments (not in the original size). For viewing purposes only
+% worm    RGB image of the 3 segments (not in the original size). For viewing purposes
+%         only. It is resized 4x from the size of the input matrix
 
 if exist('showPlot','var')==0
     showPlot=1;

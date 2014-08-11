@@ -1,28 +1,14 @@
 function varargout = pickTheHead(varargin)
-% PICKTHEHEAD MATLAB code for pickTheHead.fig
-%      PICKTHEHEAD, by itself, creates a new PICKTHEHEAD or raises the existing
-%      singleton*.
-%
-%      H = PICKTHEHEAD returns the handle to a new PICKTHEHEAD or the handle to
-%      the existing singleton*.
-%
-%      PICKTHEHEAD('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PICKTHEHEAD.M with the given input arguments.
-%
-%      PICKTHEHEAD('Property','Value',...) creates a new PICKTHEHEAD or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before pickTheHead_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to pickTheHead_OpeningFcn via varargin.
-%
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
-%
-% See also: GUIDE, GUIDATA, GUIHANDLES
-
-% Edit the above text to modify the response to help pickTheHead
-
-% Last Modified by GUIDE v2.5 22-Aug-2013 18:08:54
+% ***********
+% Required arguments:
+% segmentScans   cell array containing the linear indices for the scans that form each
+%                segment
+% worms          RGB image of the 3 segments (use the output from segmentWorms, it is 4x 
+%                larger) than the values in segmentScans suggest it should be.
+% name           path to image of worm. Used to figure out which segment is the head
+% 
+% Output: the segment that you clicked on
+% ***********
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,27 +40,26 @@ function pickTheHead_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for pickTheHead
 handles.output = hObject;
-wormColors=varargin{1};
-out=varargin{2};
-sample=varargin{3};
-names=varargin{4};
 
-% get the raw image
-imshow(imresize(imread(names{sample}),.25),'parent',handles.axes2)
+% Parse input args
+segmentScans=varargin{1};
+wormColors=varargin{2};
+name=varargin{3};
+
+% Read in the raw image of the worm
+imshow(imresize(imread(name),.25),'parent',handles.axes2)
 
 imshow(wormColors,'Parent',handles.axes1)
 [handles.X,handles.Y] = ginput(1);
 pickedIdx=sub2ind([size(wormColors,1)/4,size(wormColors,2)/4],round(handles.Y/4),round(handles.X/4));
-segment=find(~cellfun(@isempty,cellfun(@(x) find(round(x)==round(pickedIdx)),out,'uniformoutput',0)));
+segment=find(~cellfun(@isempty,cellfun(@(x) find(round(x)==round(pickedIdx)),segmentScans,'uniformoutput',0)));
 if isempty(segment)
     segment=0;
 end
 handles.segment=segment;
+
 % Update handles structure
 guidata(hObject, handles);
-%assignin('caller','x',handles.X);
-%assignin('caller','y',handles.Y);
-%close(handles.figure1)
 
 % UIWAIT makes pickTheHead wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -92,3 +77,5 @@ function varargout = pickTheHead_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.segment;
 varargout{2} = handles.X;
 varargout{3} = handles.Y;
+
+close(handles.figure1)

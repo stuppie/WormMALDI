@@ -4,7 +4,7 @@
 % Add the folder containing msconvert to your windows path. E.g. C:\Program Files (x86)\ProteoWizard\ProteoWizard 3.0.6452
 
 %Required files: 
-
+z
 %% Select all the raw files in the current directory
 d=dir('*.raw');
 d={d.name};
@@ -49,9 +49,8 @@ end
 
 % sqPeaks = 2D cell array (height x width of image). Each cell contains a vector [1xN],
 %   length(N) = length(CMZ)
-
-
-%% *** Change to change sample number
+%
+%*** Change to change sample number
 sample=1;
 %% *** Build square array by averaging scans based on spot size
 windowSize = 2;
@@ -74,7 +73,7 @@ sz=size(sqPeaks);
 % Decide if you want to normalize the total intensity of each pixel across all masses
 imshow(reshape(mean(allPeaks,1),sz),[])
 
-%% pull out image of a mass
+%% Pull out image of a specific mass
 [~,knownMZidx]=min(abs(CMZ-542.5));
 y=allPeaks(knownMZidx,:);
 figure,imshow(reshape(y,sz),[])
@@ -84,16 +83,24 @@ s=allPeaks(w,:);
 s=s'*beta; %weight based on betas
 figure,imshow(reshape(s,sz),[])
 CMZ(w)
-%% Divide worm in three
-[out, worm]=segmentWorms(scoresPlot,1);
+%% Divide worm into three segments
+[segmentScans, worm]=segmentWorms(scoresPlot,1);
 %% Pick the head
-idx=pickTheHead(worm,out,1,{'00001.jpg'})
+segment=0;
+while ~(segment==1 || segment==3)
+segment=pickTheHead(segmentScans, worm, [num2str(sample,'%05d'),'.jpg']);
+end
+% If the head is segment 3, make the head segment 1. And make the head 'red' in the RGB image
+if segment == 3
+    segmentScans([1,3])=segmentScans([3,1]);
+    worm(:,:,[1,3])=worm(:,:,[3,1]);
+end
 %% Make Y-vect for PLS specific to head/mid/tail
 y=zeros(sz);
 y=y-5;
-y(out{1})=-10;
-y(out{2})=-10;
-y(out{3})=10;
+y(segmentScans{1})=-10;
+y(segmentScans{2})=-10;
+y(segmentScans{3})=10;
 figure,imshow(y,[])
 
 %% Find masses related to sections
