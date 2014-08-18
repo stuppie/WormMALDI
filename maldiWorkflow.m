@@ -5,6 +5,7 @@
 
 %% Select all the raw files in the current directory
 d=dir('*.raw');
+%d=dir('*.mzXML');
 d={d.name};
 
 %% or manually pick them
@@ -99,17 +100,24 @@ for sample=1:length(d)
     worm(sample).size=sz;
     worm(sample).allPeaks=allPeaks;
     worm(sample).sqPeaks=sqPeaks;
+    close all
 end
 %% Make Y-vect for PLS specific to head/mid/tail
 y=[];
 for sample = 1:length(d)
-    ySample=reshape(zeros(worm(sample).size),[],1);
+    ySample=reshape(zeros(worm(sample).size),[],1); 
     ySample=ySample-5;
     ySample(worm(sample).segmentScan{1})=-10;
     ySample(worm(sample).segmentScan{2})=-10;
     ySample(worm(sample).segmentScan{3})=10;
     y=[y;ySample];
+    if sample==1
+    worm(sample).segs=[1 size(y,1)];  
+    else
+    worm(sample).segs=[worm(sample-1).segs(2)+1 size(y,1)];  
+    end
 end
+
 figure,imshow(reshape(ySample,worm(sample).size),[]), title('Y-vect for only the last sample')
 
 % *** Or specific to just worm (no segments) ***
@@ -121,8 +129,11 @@ numPC=find(cumsum(PCTVAR(1,:))>.90,1,'first');
 [XL,~,XS,~,BETA,PCTVAR] = plsregress(zscore(X),y,numPC);
 
 %% plot scores plot for sample 1
-XS1=sum(XS(1:size(worm(1).allPeaks,2),:),2);
-scoresPlot=reshape(XS1,worm(1).size);
+Sample=2;
+
+XS1=sum(XS(worm(Sample).segs(1):worm(Sample).segs(2),:),2);
+
+scoresPlot=reshape(XS1,worm(Sample).size);
 figure,imagesc(scoresPlot), axis equal
 colormap('redblue')
 
@@ -135,6 +146,6 @@ CMZ(w)
 %make image of those masses. Pull out masses by largest Betas, weight image by betas
 s=cellfun(@(x) (x(w,:))'*BETAW, {worm.allPeaks}, 'uni', 0);
 %% Make image of those masses in sample S
-sample=1;
+sample=3;
 imshow(reshape(s{sample},worm(sample).size),[])
 colormap(jet)
