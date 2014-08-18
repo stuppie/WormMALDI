@@ -8,9 +8,9 @@ d=dir('*.raw');
 d={d.name};
 
 %% or manually pick them
-d=uigetfile('*.raw','multiselect','on')
+d=uigetfile('*.raw','multiselect','on');
 if ~iscell(d)
-    d={d}
+    d={d};
 end
 %% Convert to mzxml and get list of spot IDs
 spotIDs=[];
@@ -51,7 +51,7 @@ for sample=1:length(d)
     % sqPeaks = 2D cell array (height x width of image). Each cell contains a vector [1xN],
     %   length(N) = length(CMZ)
 
-    windowSize = 2;
+    windowSize = 2; 
     spotID=spotIDs{sample}(:,[3,4]);
     spotID(:,1)=grp2idx(spotID(:,1));
     spotID(:,2)=grp2idx(spotID(:,2));
@@ -135,5 +135,6 @@ CMZ(w)
 %make image of those masses. Pull out masses by largest Betas, weight image by betas
 s=cellfun(@(x) (x(w,:))'*BETAW, {worm.allPeaks}, 'uni', 0);
 %% Make image of those masses in sample S
-sample=3;
-figure,imshow(reshape(s{sample},worm(sample).size),[])
+sample=1;
+imshow(reshape(s{sample},worm(sample).size),[])
+colormap(jet)
