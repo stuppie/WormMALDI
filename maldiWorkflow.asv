@@ -67,6 +67,7 @@ for sample=1:length(d)
         yInd=spotID(i,2)-windowSize:spotID(i,2)+windowSize;
         yInd=yInd(yInd>0 & yInd<=max(spotID(:,2)));
         sqPeaks(xInd,yInd)=cellfun(@(x) sum([x,peak{i}],2),sqPeaks(xInd,yInd),'uni',0);
+        sqPeaks2(spotID(i,1),spotID(i,2)) = 
     end
     allPeaks=cat(2,sqPeaks{:}); %CMZ x scan
     sz=size(sqPeaks);
